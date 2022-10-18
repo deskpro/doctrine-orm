@@ -2486,6 +2486,10 @@ class Parser
         $peek       = $this->lexer->glimpse();
         $lookahead  = $token;
 
+        if (!is_array($token)) {
+            return $this->ComparisonExpression();
+        }
+        
         if ($this->lexer->isNextToken(Lexer::T_NOT)) {
             $token = $this->lexer->glimpse();
         }
@@ -2512,15 +2516,17 @@ class Parser
                     // Peek beyond the PathExpression or InputParameter.
                     $token = $beyond;
 
-                    while ($token['value'] === '.') {
-                        $this->lexer->peek();
+                    if (is_array($token)) {
+                        while ($token['value'] === '.') {
+                            $this->lexer->peek();
 
-                        $token = $this->lexer->peek();
-                    }
+                            $token = $this->lexer->peek();
+                        }
 
-                    // Also peek beyond a NOT if there is one.
-                    if ($token['type'] === Lexer::T_NOT) {
-                        $token = $this->lexer->peek();
+                        // Also peek beyond a NOT if there is one.
+                        if ($token['type'] === Lexer::T_NOT) {
+                            $token = $this->lexer->peek();
+                        }   
                     }
 
                     // We need to go even further in case of IS (differentiate between NULL and EMPTY)
