@@ -1437,8 +1437,10 @@ class Parser
         // We need to check if we are in a IdentificationVariable or SingleValuedPathExpression
         $glimpse = $this->lexer->glimpse();
 
-        if ($glimpse['type'] === Lexer::T_DOT) {
-            return $this->SingleValuedPathExpression();
+        if (is_array($glimpse)) {
+            if ($glimpse['type'] === Lexer::T_DOT) {
+                return $this->SingleValuedPathExpression();
+            }   
         }
 
         // Still need to decide between IdentificationVariable or ResultVariable
@@ -2814,6 +2816,10 @@ class Parser
             case Lexer::T_IDENTIFIER:
                 $peek = $this->lexer->glimpse();
 
+                if (!is_array($peek)) {
+                 return $this->StateFieldPathExpression();   
+                }
+                
                 if ($peek['value'] == '(') {
                     return $this->FunctionDeclaration();
                 }
@@ -2833,6 +2839,10 @@ class Parser
 
             default:
                 $peek = $this->lexer->glimpse();
+                
+                if (!is_array($peek)) {
+                    return $this->Literal();
+                }
 
                 if ($peek['value'] == '(') {
                     if ($this->isAggregateFunction($this->lexer->lookahead['type'])) {
