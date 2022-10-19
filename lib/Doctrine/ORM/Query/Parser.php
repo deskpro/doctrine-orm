@@ -3185,13 +3185,17 @@ class Parser
 
         $escapeChar = null;
 
-        if ($this->lexer->lookahead['type'] === Lexer::T_ESCAPE) {
+        // This, like other issues of this nature in this library, array access on null doesn't cause an error 
+        // when running under php7 but does in php8
+        if (is_array($this->lexer->lookahead)) {
+          if ($this->lexer->lookahead['type'] === Lexer::T_ESCAPE) {
             $this->match(Lexer::T_ESCAPE);
             $this->match(Lexer::T_STRING);
 
             $escapeChar = new AST\Literal(AST\Literal::STRING, $this->lexer->token['value']);
+          }     
         }
-
+       
         $likeExpr = new AST\LikeExpression($stringExpr, $stringPattern, $escapeChar);
         $likeExpr->not = $not;
 
